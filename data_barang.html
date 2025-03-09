@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warung Inventory</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f0f5;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 700px;
+            margin-top: 50px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            font-weight: bold;
+        }
+        h2:first-of-type {
+            color: #000000;
+        }
+        h2:last-of-type {
+            color: #000000;;
+        }
+        .table tbody tr:hover {
+            background-color: #e9ecef;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            border: none;
+            color: black;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>DAFTAR HARGA BARANG</h2>
+        <h2>WARUNG BU ANON</h2>
+        <div class="mb-3">
+            <input type="text" id="search" class="form-control" placeholder="Cari Barang...">
+        </div>
+        <div class="mb-3">
+            <input type="text" id="namaBarang" class="form-control" placeholder="Nama Barang">
+        </div>
+        <div class="mb-3">
+            <input type="number" id="hargaBarang" class="form-control" placeholder="Harga Barang">
+        </div>
+        <div class="mb-3">
+            <input type="number" id="stokBarang" class="form-control" placeholder="Stok Barang">
+        </div>
+        <button class="btn btn-primary w-100" onclick="tambahBarang()">Tambah Barang</button>
+        
+        <table class="table table-striped mt-4">
+            <thead class="table-dark">
+                <tr>
+                    <th>No</th>
+                    <th>Nama Barang</th>
+                    <th>Harga</th>
+                    <th>Stok</th>
+                    <th>Ketersediaan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="daftarBarang"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let barangList = JSON.parse(localStorage.getItem("barangList")) || [];
+        function renderBarang() {
+            let daftarBarang = document.getElementById("daftarBarang");
+            daftarBarang.innerHTML = "";
+            barangList.forEach((barang, index) => {
+                let ketersediaan = barang.stok > 0 ? "Tersedia" : "Habis";
+                daftarBarang.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${barang.nama}</td>
+                        <td>${barang.harga}</td>
+                        <td>${barang.stok}</td>
+                        <td>${ketersediaan}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editStok(${index})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="hapusBarang(${index})">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            localStorage.setItem("barangList", JSON.stringify(barangList));
+        }
+        function tambahBarang() {
+            let nama = document.getElementById("namaBarang").value;
+            let harga = document.getElementById("hargaBarang").value;
+            let stok = document.getElementById("stokBarang").value;
+            if (nama && harga && stok) {
+                barangList.push({ nama, harga, stok });
+                document.getElementById("namaBarang").value = "";
+                document.getElementById("hargaBarang").value = "";
+                document.getElementById("stokBarang").value = "";
+                renderBarang();
+            }
+        }
+        function editStok(index) {
+            let newStok = prompt("Masukkan stok baru:", barangList[index].stok);
+            if (newStok !== null) {
+                barangList[index].stok = newStok;
+                renderBarang();
+            }
+        }
+        function hapusBarang(index) {
+            barangList.splice(index, 1);
+            renderBarang();
+        }
+        document.getElementById("search").addEventListener("input", function () {
+            let filter = this.value.toLowerCase();
+            document.querySelectorAll("#daftarBarang tr").forEach(row => {
+                let nama = row.cells[1].innerText.toLowerCase();
+                row.style.display = nama.includes(filter) ? "" : "none";
+            });
+        });
+        renderBarang();
+    </script>
+</body>
+</html>
